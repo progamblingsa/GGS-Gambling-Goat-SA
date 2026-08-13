@@ -1,0 +1,313 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  font-family: Inter, Arial, sans-serif;
+  color: #111;
+  background: #f5f5f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(255, 215, 0, 0.12), transparent 30%),
+    #f5f5f5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* APP */
+
+.app {
+  min-height: 100vh;
+}
+
+/* NAVBAR */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 6%;
+  background: #050505;
+  color: white;
+  border-bottom: 1px solid #292929;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.logo span {
+  color: #f5c400;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.nav-links button {
+  border: 0;
+  background: transparent;
+  color: white;
+  font-weight: 700;
+}
+
+.nav-links button:hover {
+  color: #f5c400;
+}
+
+/* HERO */
+
+.hero {
+  padding: 90px 6%;
+  text-align: center;
+  background:
+    linear-gradient(rgba(0,0,0,.78), rgba(0,0,0,.88)),
+    radial-gradient(circle at center, #444, #050505);
+  color: white;
+}
+
+.hero h1 {
+  max-width: 900px;
+  margin: auto;
+  font-size: clamp(42px, 8vw, 82px);
+  line-height: .95;
+  font-weight: 950;
+}
+
+.hero h1 span {
+  color: #f5c400;
+}
+
+.hero p {
+  max-width: 700px;
+  margin: 25px auto;
+  color: #d0d0d0;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.primary-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 15px 25px;
+  background: #f5c400;
+  color: #050505;
+  font-weight: 900;
+  transition: .2s;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  background: #ffd928;
+}
+
+.primary-btn.full {
+  width: 100%;
+}
+
+/* SECTIONS */
+
+.section {
+  padding: 70px 6%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.section-title {
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.section-title h2 {
+  font-size: 38px;
+  font-weight: 950;
+}
+
+.section-title p {
+  margin-top: 10px;
+  color: #666;
+}
+
+/* MEMBERSHIP */
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.plan-card {
+  position: relative;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 12px 35px rgba(0,0,0,.07);
+}
+
+.plan-card.featured {
+  border: 2px solid #f5c400;
+  transform: translateY(-8px);
+}
+
+.plan-card h3 {
+  font-size: 25px;
+  margin-bottom: 12px;
+}
+
+.price {
+  margin: 15px 0;
+  font-size: 38px;
+  font-weight: 950;
+}
+
+.plan-card ul {
+  margin: 20px 0;
+  padding-left: 20px;
+  color: #555;
+  line-height: 2;
+}
+
+/* DASHBOARD */
+
+.dashboard {
+  max-width: 1200px;
+  margin: auto;
+  padding: 50px 6%;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.stat-card {
+  padding: 25px;
+  border-radius: 16px;
+  background: #111;
+  color: white;
+}
+
+.stat-card small {
+  color: #aaa;
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 30px;
+  color: #f5c400;
+}
+
+/* MODAL */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.75);
+}
+
+.modal {
+  width: min(500px, 100%);
+  padding: 30px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+}
+
+.modal h2 {
+  margin-bottom: 15px;
+}
+
+.modal-note {
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 10px;
+  background: #fff7cc;
+  color: #665500;
+  line-height: 1.5;
+}
+
+.modal input {
+  width: 100%;
+  margin: 8px 0;
+  padding: 13px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  outline: none;
+}
+
+.modal input:focus {
+  border-color: #f5c400;
+}
+
+/* FOOTER */
+
+.footer {
+  padding: 40px 6%;
+  text-align: center;
+  background: #050505;
+  color: #aaa;
+}
+
+.footer strong {
+  color: white;
+}
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+  .plans,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card.featured {
+    transform: none;
+  }
+
+  .nav-links {
+    gap: 10px;
+  }
+
+  .hero {
+    padding: 65px 5%;
+  }
+
+  .section {
+    padding: 50px 5%;
+  }
+}

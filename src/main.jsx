@@ -5,7 +5,7 @@ import "./styles.css";
 
 const supabaseUrl = "https://bswnctdxdifdakfvzeza.supabase.co";
 sb_publishable_xFQvBpE7Y0B1sKBcm6_-cw_fhAs-1jV
-const supabaseKey = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+const supabaseKey ="sb_publishable_xFQvBpE7Y0B1sKBcm6_-cw_fhAs-1jV";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

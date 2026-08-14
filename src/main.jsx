@@ -1,95 +1,164 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { createClient } from "@supabase/supabase-js";
 import "./styles.css";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const plans = [
   {
     name: "GOAT STARTER",
     price: 99,
-    description: "A structured introduction to the GGS community.",
     features: [
       "Member access",
       "Educational content",
       "Responsible gambling resources",
-      "Community updates"
-    ]
+      "Community updates",
+    ],
   },
   {
     name: "GOAT PRO",
     price: 199,
-    description: "The full GGS membership experience.",
+    featured: true,
     features: [
       "Everything in Starter",
       "Premium educational content",
       "Member dashboard",
-      "Exclusive community content"
+      "Exclusive community content",
     ],
-    featured: true
   },
   {
     name: "GOAT ELITE",
     price: 399,
-    description: "Premium access for serious members.",
     features: [
       "Everything in Pro",
       "Elite member content",
-      "Priority community access",
-      "Premium resources"
-    ]
-  }
+      "Premium resources",
+      "Priority member updates",
+    ],
+  },
 ];
 
 function App() {
+  const [session, setSession] = useState(null);
+  const [authMode, setAuthMode] = useState("login");
+  const [showAuth, setShowAuth] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [showLogin, setShowLogin] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
 
-  const handleLogin = (event) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleAuth(event) {
     event.preventDefault();
-    setLoggedIn(true);
-    setShowLogin(false);
-    setShowDashboard(true);
-  };
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      if (authMode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        if (!data.session) {
+          setMessage(
+            "Account created. Check your email to confirm your account."
+          );
+        } else {
+          setMessage("Account created successfully.");
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        setMessage("Login successful.");
+        setShowAuth(false);
+      }
+    } catch (error) {
+      setMessage(error.message || "Authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setShowDashboard(false);
+  }
+
+  function choosePlan(plan) {
+    if (!session) {
+      setAuthMode("signup");
+      setShowAuth(true);
+      setMessage("Create an account before selecting a membership.");
+      return;
+    }
+
+    setSelectedPlan(plan);
+  }
 
   return (
     <div className="app">
-
-      {/* NAVIGATION */}
+      {/* NAVBAR */}
       <nav className="navbar">
         <div className="logo">
           GGS <span>GAMBLING GOAT SA</span>
         </div>
 
         <div className="nav-links">
-          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            Home
-          </button>
+          <a href="#home">Home</a>
+          <a href="#membership">Membership</a>
+          <a href="#about">About</a>
 
-          <button
-            onClick={() =>
-              document
-                .getElementById("membership")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Membership
-          </button>
-
-          {loggedIn && (
+          {session && (
             <button onClick={() => setShowDashboard(true)}>
               Dashboard
             </button>
           )}
 
-          <button onClick={() => setShowLogin(true)}>
-            {loggedIn ? "Account" : "Login"}
-          </button>
+          {!session ? (
+            <button onClick={() => setShowAuth(true)}>
+              Login
+            </button>
+          ) : (
+            <button onClick={logout}>
+              Logout
+            </button>
+          )}
         </div>
       </nav>
 
       {/* HERO */}
-      <section className="hero">
+      <section id="home" className="hero">
         <h1>
           WELCOME TO
           <br />
@@ -99,7 +168,7 @@ function App() {
         <p>
           More than just a brand — it's a lifestyle.
           Join the GGS community for educational content,
-          member resources and a responsible approach to gambling.
+          member resources and responsible gambling information.
         </p>
 
         <button
@@ -114,41 +183,11 @@ function App() {
         </button>
       </section>
 
-      {/* ABOUT */}
-      <section className="section">
-        <div className="section-title">
-          <h2>THE GGS MOVEMENT</h2>
-          <p>
-            Built around discipline, knowledge, community and responsible
-            decision-making.
-          </p>
-        </div>
-
-        <div className="dashboard-grid">
-          <div className="stat-card">
-            <small>COMMUNITY</small>
-            <strong>GGS SA</strong>
-          </div>
-
-          <div className="stat-card">
-            <small>MISSION</small>
-            <strong>EDUCATE</strong>
-          </div>
-
-          <div className="stat-card">
-            <small>PRINCIPLE</small>
-            <strong>DISCIPLINE</strong>
-          </div>
-        </div>
-      </section>
-
       {/* MEMBERSHIP */}
       <section className="section" id="membership">
         <div className="section-title">
           <h2>CHOOSE YOUR MEMBERSHIP</h2>
-          <p>
-            Select the membership that fits you.
-          </p>
+          <p>Select your GGS membership level.</p>
         </div>
 
         <div className="plans">
@@ -164,7 +203,7 @@ function App() {
                   style={{
                     color: "#f5c400",
                     fontWeight: "900",
-                    marginBottom: "10px"
+                    marginBottom: "10px",
                   }}
                 >
                   MOST POPULAR
@@ -175,27 +214,20 @@ function App() {
 
               <div className="price">
                 R{plan.price}
-                <span
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "500"
-                  }}
-                >
+                <span style={{ fontSize: "14px" }}>
                   /month
                 </span>
               </div>
 
-              <p>{plan.description}</p>
-
               <ul>
                 {plan.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
+                  <li key={feature}>✓ {feature}</li>
                 ))}
               </ul>
 
               <button
                 className="primary-btn full"
-                onClick={() => setSelectedPlan(plan)}
+                onClick={() => choosePlan(plan)}
               >
                 SELECT PLAN
               </button>
@@ -204,14 +236,40 @@ function App() {
         </div>
       </section>
 
+      {/* ABOUT */}
+      <section className="section" id="about">
+        <div className="section-title">
+          <h2>THE GGS MINDSET</h2>
+          <p>
+            Knowledge. Discipline. Community. Responsible decision-making.
+          </p>
+        </div>
+
+        <div className="dashboard-grid">
+          <div className="stat-card">
+            <small>MISSION</small>
+            <strong>EDUCATE</strong>
+          </div>
+
+          <div className="stat-card">
+            <small>PRINCIPLE</small>
+            <strong>DISCIPLINE</strong>
+          </div>
+
+          <div className="stat-card">
+            <small>COMMUNITY</small>
+            <strong>GGS SA</strong>
+          </div>
+        </div>
+      </section>
+
       {/* RESPONSIBLE GAMBLING */}
       <section className="section">
         <div className="section-title">
           <h2>PLAY RESPONSIBLY</h2>
-
           <p>
-            Gambling should be entertainment, not a way to recover losses
-            or solve financial problems.
+            Gambling involves financial risk. No strategy, pattern or
+            signal can guarantee winnings.
           </p>
         </div>
 
@@ -222,9 +280,8 @@ function App() {
             <li>Only gamble with money you can afford to lose.</li>
             <li>Never chase losses.</li>
             <li>Set spending and time limits.</li>
-            <li>Take regular breaks.</li>
             <li>Never borrow money to gamble.</li>
-            <li>Seek professional help if gambling becomes difficult to control.</li>
+            <li>Take regular breaks.</li>
           </ul>
         </div>
       </section>
@@ -232,15 +289,93 @@ function App() {
       {/* FOOTER */}
       <footer className="footer">
         <strong>GGS GAMBLING GOAT SA</strong>
-
-        <p style={{ marginTop: "10px" }}>
-          More than just a brand — it's a lifestyle.
-        </p>
-
-        <p style={{ marginTop: "15px", fontSize: "13px" }}>
-          © {new Date().getFullYear()} GGS Gambling GOAT SA. All rights reserved.
+        <p>More than just a brand — it's a lifestyle.</p>
+        <p>
+          © {new Date().getFullYear()} GGS Gambling Goat SA
         </p>
       </footer>
+
+      {/* AUTH MODAL */}
+      {showAuth && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAuth(false)}
+        >
+          <div
+            className="modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2>
+              {authMode === "login"
+                ? "GGS MEMBER LOGIN"
+                : "CREATE GGS ACCOUNT"}
+            </h2>
+
+            <p style={{ margin: "12px 0" }}>
+              {authMode === "login"
+                ? "Log in to your GGS account."
+                : "Create your GGS member account."}
+            </p>
+
+            <form onSubmit={handleAuth}>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                minLength={6}
+                required
+              />
+
+              <button
+                className="primary-btn full"
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? "PLEASE WAIT..."
+                  : authMode === "login"
+                  ? "LOGIN"
+                  : "CREATE ACCOUNT"}
+              </button>
+            </form>
+
+            {message && (
+              <div className="modal-note">
+                {message}
+              </div>
+            )}
+
+            <button
+              style={{
+                border: 0,
+                background: "transparent",
+                marginTop: "15px",
+                cursor: "pointer",
+                fontWeight: "700",
+              }}
+              onClick={() => {
+                setAuthMode(
+                  authMode === "login" ? "signup" : "login"
+                );
+                setMessage("");
+              }}
+            >
+              {authMode === "login"
+                ? "Create a new account"
+                : "Already have an account? Login"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* PLAN MODAL */}
       {selectedPlan && (
@@ -254,69 +389,33 @@ function App() {
           >
             <h2>{selectedPlan.name}</h2>
 
+            <div className="price">
+              R{selectedPlan.price}
+              <span>/month</span>
+            </div>
+
             <p>
-              You selected the{" "}
-              <strong>{selectedPlan.name}</strong> membership.
+              Your account is ready. Payment integration will be
+              connected separately.
             </p>
 
             <div className="modal-note">
-              Membership payment processing is not connected yet.
-              Connect a verified payment provider before accepting
-              real payments.
+              Membership payment is not active yet. Do not accept
+              real payments until the payment provider and subscription
+              verification are connected.
             </div>
 
             <button
               className="primary-btn full"
               onClick={() => setSelectedPlan(null)}
             >
-              CONTINUE
+              CLOSE
             </button>
           </div>
         </div>
       )}
 
-      {/* LOGIN MODAL */}
-      {showLogin && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowLogin(false)}
-        >
-          <div
-            className="modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2>GGS MEMBER LOGIN</h2>
-
-            <p style={{ marginBottom: "15px" }}>
-              Sign in to access your member dashboard.
-            </p>
-
-            <form onSubmit={handleLogin}>
-              <input
-                type="email"
-                placeholder="Email address"
-                required
-              />
-
-              <input
-                type="password"
-                placeholder="Password"
-                required
-              />
-
-              <button
-                className="primary-btn full"
-                type="submit"
-                style={{ marginTop: "10px" }}
-              >
-                LOGIN
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* DASHBOARD MODAL */}
+      {/* DASHBOARD */}
       {showDashboard && (
         <div
           className="modal-overlay"
@@ -334,18 +433,13 @@ function App() {
 
             <div className="dashboard-grid">
               <div className="stat-card">
-                <small>STATUS</small>
+                <small>ACCOUNT</small>
                 <strong>ACTIVE</strong>
               </div>
 
               <div className="stat-card">
-                <small>MEMBER</small>
+                <small>MEMBER ACCESS</small>
                 <strong>GGS</strong>
-              </div>
-
-              <div className="stat-card">
-                <small>CONTENT</small>
-                <strong>ACCESS</strong>
               </div>
             </div>
 
@@ -359,7 +453,6 @@ function App() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

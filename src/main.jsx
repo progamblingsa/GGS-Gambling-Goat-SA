@@ -3,8 +3,9 @@ import { createRoot } from "react-dom/client";
 import { createClient } from "@supabase/supabase-js";
 import "./styles.css";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = "https://bswnctdxdifdakfvzeza.supabase.co";
+sb_publishable_xFQvBpE7Y0B1sKBcm6_-cw_fhAs-1jV
+const supabaseKey = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
